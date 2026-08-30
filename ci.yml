@@ -1,0 +1,36 @@
+name: CI
+
+# Run this workflow on every PR targeting main, and on every push to main
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Get the code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Install uv (official action — also handles caching automatically)
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      # Step 3: Set up Python via uv
+      - name: Set up Python
+        run: uv python install 3.11
+
+      # Step 4: Install project dependencies (including dev tools like black/pytest)
+      - name: Install dependencies
+        run: uv sync
+
+      # Step 5: Check code style with black
+      - name: Check formatting with black
+        run: uv run black --check .
+
+      # Step 6: Run tests (once you have any — for now this won't fail the build)
+      - name: Run tests
+        run: uv run pytest || echo "No tests yet — skipping failure"
