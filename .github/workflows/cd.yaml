@@ -1,0 +1,41 @@
+name: CD
+
+# Only run this workflow when code is pushed to main
+# (i.e. AFTER a PR has already been reviewed and merged)
+on:
+  push:
+    branches: [main]
+
+# Needed so this workflow is allowed to publish a package (the Docker image)
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Get the latest code from main
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Log in to GitHub Container Registry using the
+      # automatically-provided GITHUB_TOKEN (no manual secret needed)
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 3: Build the Docker image and push it to ghcr.io
+      # Tags it both as "latest" and with the specific commit SHA,
+      # so you can always trace an image back to the exact code it came from
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/local-rag-demo:latest
+            ghcr.io/${{ github.repository_owner }}/local-rag-demo:${{ github.sha }}
