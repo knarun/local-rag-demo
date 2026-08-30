@@ -1,0 +1,18 @@
+[project]
+name = "local-rag-demo"
+version = "0.1.0"
+description = "A local Retrieval-Augmented Generation demo using Ollama, ChromaDB, and sentence-transformers"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "chromadb",
+    "sentence-transformers",
+    "ollama",
+]
+
+[dependency-groups]
+dev = [
+    "black",
+    "pytest",
+]
