@@ -1,0 +1,7 @@
+# This file defines who is required to review changes in this repository.
+# The * means "all files" — so every pull request requires review from
+# the owner(s) listed below, regardless of which file changed.
+#
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+* @knarun
