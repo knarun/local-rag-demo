@@ -25,3 +25,5 @@ COPY . .
 # Default command when the container starts.
 # Update this once query.py / ingest.py exist.
 CMD ["python", "query.py"]
+
+
