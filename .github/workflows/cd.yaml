@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   build-and-push:
-    needs: [ci-job-name]
     runs-on: ubuntu-latest
     steps:
       # Step 1: Get the latest code from main
