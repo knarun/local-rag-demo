@@ -27,3 +27,4 @@ COPY . .
 CMD ["python", "query.py"]
 
 
+#cforc
