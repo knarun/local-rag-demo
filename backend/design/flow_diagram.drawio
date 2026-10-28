@@ -1,0 +1,552 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="Kiro" version="21.0.0">
+  <diagram name="RAG Chatbot - Full Flow" id="rag-full-flow">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ============================================================ -->
+        <!-- LEGEND -->
+        <!-- ============================================================ -->
+        <mxCell id="legend_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="20" y="20" width="220" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="30" y="28" width="200" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="Route (HTTP Layer)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="30" y="60" width="160" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="Service (Business Logic)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="30" y="92" width="160" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="Client (External)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="30" y="124" width="160" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="Repo (SQL DB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="30" y="156" width="160" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" value="Decision / Error" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="30" y="188" width="100" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- FLOW 1: PDF INGESTION -->
+        <!-- ============================================================ -->
+        <mxCell id="f1_title" value="FLOW 1 — PDF INGESTION (POST /ingest)" style="text;html=1;strokeColor=none;fillColor=#dae8fc;align=center;verticalAlign=middle;fontStyle=1;fontSize=14;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="20" width="400" height="34" as="geometry" />
+        </mxCell>
+
+        <!-- Start -->
+        <mxCell id="f1_start" value="User uploads PDF" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="70" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Route -->
+        <mxCell id="f1_route" value="routes/ingest.py&#xa;POST /ingest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="420" y="130" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_start" target="f1_route" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- IngestService -->
+        <mxCell id="f1_svc" value="services/ingest_service.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="420" y="190" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_route" target="f1_svc" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Pre-check 1: file size -->
+        <mxCell id="f1_check1" value="File size &gt; MAX?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="410" y="250" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_svc" target="f1_check1" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f1_err1" value="FILE_TOO_LARGE&#xa;HTTP 413" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="580" y="258" width="120" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e3b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_check1" target="f1_err1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+          <Array as="points"><mxPoint x="570" y="275" /><mxPoint x="570" y="275" /></Array>
+        </mxCell>
+        <mxCell id="f1_lbl_yes1" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="553" y="262" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- Pre-check 2: duplicate -->
+        <mxCell id="f1_check2" value="Duplicate&#xa;filename?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="410" y="320" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_check1" target="f1_check2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_lbl_no1" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="460" y="302" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f1_err2" value="DOCUMENT_ALREADY_EXISTS&#xa;HTTP 409" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="580" y="328" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e4b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_check2" target="f1_err2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_lbl_yes2" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="553" y="332" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- Pre-check 3: valid PDF -->
+        <mxCell id="f1_check3" value="Valid PDF?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="410" y="390" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_check2" target="f1_check3" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f1_lbl_no2" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="460" y="372" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f1_err3" value="INVALID_FILE_TYPE&#xa;HTTP 422" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="580" y="398" width="120" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e5b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_check3" target="f1_err3" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f1_lbl_no3" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="553" y="402" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- pdf_client extract -->
+        <mxCell id="f1_pdf" value="client/pdf_client.py&#xa;extract text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="420" y="460" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_check3" target="f1_pdf" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f1_lbl_yes3" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="460" y="442" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- empty doc check -->
+        <mxCell id="f1_check4" value="Text empty?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="410" y="520" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_pdf" target="f1_check4" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f1_err4" value="EMPTY_DOCUMENT&#xa;HTTP 422" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="580" y="528" width="120" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e7b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_check4" target="f1_err4" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f1_lbl_yes4" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="553" y="532" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- chunk -->
+        <mxCell id="f1_chunk" value="Chunk text&#xa;(token-aware splitter)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="420" y="590" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_check4" target="f1_chunk" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f1_lbl_no4" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="460" y="572" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- embedder -->
+        <mxCell id="f1_embed" value="client/embedder_client.py&#xa;embed_batch(chunks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="420" y="650" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e9" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_chunk" target="f1_embed" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- chroma store -->
+        <mxCell id="f1_chroma" value="client/chroma_client.py&#xa;add(chunks, embeddings)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="420" y="710" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e10" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_embed" target="f1_chroma" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- chroma fail check -->
+        <mxCell id="f1_check5" value="Chroma&#xa;failed?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="410" y="770" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e10b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_chroma" target="f1_check5" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f1_rollback" value="Rollback: delete partial&#xa;Chroma chunks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="580" y="778" width="130" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e10c" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_check5" target="f1_rollback" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f1_lbl_yes5" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="553" y="782" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- DB save -->
+        <mxCell id="f1_db" value="repo/document_repo.py&#xa;repo/chunk_repo.py&#xa;save Document + Chunks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="420" y="840" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e11" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_check5" target="f1_db" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f1_lbl_no5" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="460" y="822" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- cache invalidate -->
+        <mxCell id="f1_cache" value="client/cache_client.py&#xa;invalidate documents:list" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="420" y="910" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e12" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_db" target="f1_cache" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- success -->
+        <mxCell id="f1_ok" value="IngestResponse&#xa;(doc_id, filename, chunk_count)&#xa;HTTP 201" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="405" y="970" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f1_e13" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f1_cache" target="f1_ok" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ============================================================ -->
+        <!-- FLOW 2: ONE-SHOT QUERY -->
+        <!-- ============================================================ -->
+        <mxCell id="f2_title" value="FLOW 2 — ONE-SHOT QUERY (POST /query)" style="text;html=1;strokeColor=none;fillColor=#d5e8d4;align=center;verticalAlign=middle;fontStyle=1;fontSize=14;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="760" y="20" width="400" height="34" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f2_start" value="User sends question" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="70" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f2_route" value="routes/query.py&#xa;POST /query" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="900" y="130" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_start" target="f2_route" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f2_svc" value="services/query_service.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="900" y="190" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_route" target="f2_svc" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- input validation -->
+        <mxCell id="f2_check1" value="Empty / &gt;2000&#xa;chars?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="888" y="250" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_svc" target="f2_check1" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_err1" value="EMPTY_QUERY /&#xa;QUERY_TOO_LONG&#xa;HTTP 422" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="253" width="110" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e3b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_check1" target="f2_err1" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_lbl_yes1" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1030" y="258" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- VectorStore empty check -->
+        <mxCell id="f2_check2" value="VectorStore&#xa;empty?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="888" y="320" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_check1" target="f2_check2" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_lbl_no1" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="937" y="302" width="30" height="16" as="geometry" /></mxCell>
+        <mxCell id="f2_err2" value="NO_DOCUMENTS_INGESTED&#xa;HTTP 404" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="328" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e4b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_check2" target="f2_err2" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_lbl_yes2" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1030" y="332" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- Cache check: embedding -->
+        <mxCell id="f2_cache_emb" value="Cache hit?&#xa;(embedding)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="888" y="390" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_check2" target="f2_cache_emb" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_lbl_no2" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="937" y="372" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f2_gen_emb" value="client/embedder_client.py&#xa;embed(question)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="760" y="398" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e5b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_cache_emb" target="f2_gen_emb" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_lbl_no3" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="832" y="398" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f2_save_emb" value="Cache.set(embedding, TTL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="760" y="450" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e5c" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_gen_emb" target="f2_save_emb" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- merge embedding path -->
+        <mxCell id="f2_merge_emb" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="910" y="460" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e5d" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_save_emb" target="f2_merge_emb" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_e5e" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_cache_emb" target="f2_merge_emb" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_lbl_hit1" value="HIT" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="952" y="432" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- Cache check: retrieval -->
+        <mxCell id="f2_cache_ret" value="Cache hit?&#xa;(chunk retrieval)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="888" y="500" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_merge_emb" target="f2_cache_ret" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f2_chroma" value="client/chroma_client.py&#xa;query(embedding, top-K)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="760" y="508" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e6b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_cache_ret" target="f2_chroma" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_lbl_no4" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="832" y="508" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f2_save_ret" value="Cache.set(chunks, TTL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="760" y="560" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e6c" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_chroma" target="f2_save_ret" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f2_merge_ret" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="910" y="572" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e6d" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_save_ret" target="f2_merge_ret" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_e6e" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_cache_ret" target="f2_merge_ret" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_lbl_hit2" value="HIT" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="952" y="544" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- Cache check: LLM response -->
+        <mxCell id="f2_cache_llm" value="Cache hit?&#xa;(LLM response)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="888" y="612" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_merge_ret" target="f2_cache_llm" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f2_ollama" value="client/ollama_client.py&#xa;generate(question + chunks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="760" y="620" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e7b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_cache_llm" target="f2_ollama" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_lbl_no5" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="832" y="620" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f2_save_llm" value="Cache.set(response, TTL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="760" y="672" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e7c" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_ollama" target="f2_save_llm" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f2_merge_llm" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="910" y="680" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e7d" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_save_llm" target="f2_merge_llm" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_e7e" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_cache_llm" target="f2_merge_llm" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2_lbl_hit3" value="HIT" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="952" y="652" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f2_ok" value="QueryResponse&#xa;(answer, source chunk ids)&#xa;HTTP 200" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="885" y="718" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f2_e8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f2_merge_llm" target="f2_ok" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ============================================================ -->
+        <!-- FLOW 3: SESSION-AWARE CHAT -->
+        <!-- ============================================================ -->
+        <mxCell id="f3_title" value="FLOW 3 — SESSION-AWARE CHAT (POST /chat)" style="text;html=1;strokeColor=none;fillColor=#fff2cc;align=center;verticalAlign=middle;fontStyle=1;fontSize=14;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="20" width="400" height="34" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f3_start" value="User sends message&#xa;(+ optional session_id)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1380" y="70" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f3_route" value="routes/chat.py&#xa;POST /chat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="130" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_start" target="f3_route" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f3_svc" value="services/chat_service.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="190" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_route" target="f3_svc" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- validation -->
+        <mxCell id="f3_check1" value="Empty msg?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1378" y="250" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_svc" target="f3_check1" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_err1" value="EMPTY_MESSAGE /&#xa;MESSAGE_TOO_LONG&#xa;HTTP 422" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="253" width="110" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e3b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_check1" target="f3_err1" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_yes1" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1520" y="258" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- VectorStore empty -->
+        <mxCell id="f3_check2" value="VectorStore&#xa;empty?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1378" y="320" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_check1" target="f3_check2" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_no1" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1427" y="302" width="30" height="16" as="geometry" /></mxCell>
+        <mxCell id="f3_err2" value="NO_DOCUMENTS_INGESTED&#xa;HTTP 404" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="328" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e4b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_check2" target="f3_err2" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_yes2" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1520" y="332" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- session_id provided? -->
+        <mxCell id="f3_check3" value="session_id&#xa;provided?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1378" y="390" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_check2" target="f3_check3" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_no2" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1427" y="372" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- create session -->
+        <mxCell id="f3_new_sess" value="repo/session_repo.py&#xa;create new Session (UUID)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="398" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e5b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_check3" target="f3_new_sess" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_no3" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1332" y="398" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- validate existing session -->
+        <mxCell id="f3_val_sess" value="repo/session_repo.py&#xa;lookup session_id" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="398" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e5c" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_check3" target="f3_val_sess" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_yes3" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1520" y="398" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f3_check4" value="Found?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1548" y="450" width="114" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e5d" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_val_sess" target="f3_check4" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f3_err3" value="SESSION_NOT_FOUND&#xa;HTTP 404" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1690" y="458" width="120" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e5e" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_check4" target="f3_err3" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_no4" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1663" y="458" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- fetch history -->
+        <mxCell id="f3_history" value="repo/conversation_repo.py&#xa;get last N turns" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="510" width="120" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e6a" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_new_sess" target="f3_history" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_e6b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_check4" target="f3_history" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_lbl_yes4" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1530" y="490" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- cache embed -->
+        <mxCell id="f3_cache_emb" value="Cache hit? (embedding)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1378" y="564" width="144" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_history" target="f3_cache_emb" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f3_gen_emb" value="embedder_client.py&#xa;embed(message)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="572" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e7b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_cache_emb" target="f3_gen_emb" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_no5" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1332" y="572" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- cache retrieval -->
+        <mxCell id="f3_cache_ret" value="Cache hit? (retrieval)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1378" y="626" width="144" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_cache_emb" target="f3_cache_ret" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_hit1" value="HIT" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1427" y="606" width="30" height="16" as="geometry" /></mxCell>
+        <mxCell id="f3_e8b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_gen_emb" target="f3_cache_ret" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f3_chroma" value="chroma_client.py&#xa;query(embedding, top-K)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="634" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e8c" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_cache_ret" target="f3_chroma" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_no6" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1332" y="634" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- build prompt -->
+        <mxCell id="f3_prompt" value="Build prompt:&#xa;chunks + history (N) + message" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1378" y="688" width="144" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e9" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_cache_ret" target="f3_prompt" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_hit2" value="HIT" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1427" y="668" width="30" height="16" as="geometry" /></mxCell>
+        <mxCell id="f3_e9b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_chroma" target="f3_prompt" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ollama chat (NO CACHE) -->
+        <mxCell id="f3_ollama" value="client/ollama_client.py&#xa;chat(messages) — NO CACHE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1378" y="748" width="144" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e10" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_prompt" target="f3_ollama" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- LLM fail? -->
+        <mxCell id="f3_check5" value="LLM failed?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1378" y="808" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e11" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_ollama" target="f3_check5" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_err4" value="LLM_UNAVAILABLE&#xa;HTTP 503&#xa;(msg NOT saved)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="816" width="120" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e11b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_check5" target="f3_err4" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_yes5" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1520" y="820" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- persist turns -->
+        <mxCell id="f3_persist" value="repo/conversation_repo.py&#xa;save user turn + assistant turn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1378" y="878" width="144" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e12" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_check5" target="f3_persist" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3_lbl_no7" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1427" y="860" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f3_ok" value="ChatResponse&#xa;(answer, session_id)&#xa;HTTP 200" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1375" y="938" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f3_e13" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f3_persist" target="f3_ok" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ============================================================ -->
+        <!-- FLOW 4: DOCUMENT MANAGEMENT -->
+        <!-- ============================================================ -->
+        <mxCell id="f4_title" value="FLOW 4 — DOCUMENT MANAGEMENT (GET/DELETE /documents)" style="text;html=1;strokeColor=none;fillColor=#f8cecc;align=center;verticalAlign=middle;fontStyle=1;fontSize=14;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="1040" width="560" height="34" as="geometry" />
+        </mxCell>
+
+        <!-- LIST flow -->
+        <mxCell id="f4_list_start" value="GET /documents" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1090" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f4_list_route" value="routes/document.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1150" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_le1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_list_start" target="f4_list_route" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f4_list_svc" value="services/document_service.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1210" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_le2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_list_route" target="f4_list_svc" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f4_list_cache" value="Cache hit?&#xa;(documents:list)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="288" y="1270" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_le3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_list_svc" target="f4_list_cache" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f4_list_db" value="repo/document_repo.py&#xa;list all Documents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="160" y="1278" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_le3b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_list_cache" target="f4_list_db" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f4_lbl_miss" value="MISS" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="234" y="1278" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f4_list_save" value="Cache.set(list, TTL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="160" y="1330" width="110" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_le3c" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_list_db" target="f4_list_save" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f4_list_ok" value="DocumentList [ ]&#xa;HTTP 200" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="288" y="1338" width="144" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_le3d" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_list_save" target="f4_list_ok" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f4_le3e" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_list_cache" target="f4_list_ok" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f4_lbl_hit" value="HIT" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="337" y="1322" width="30" height="16" as="geometry" /></mxCell>
+
+        <!-- DELETE flow -->
+        <mxCell id="f4_del_start" value="DELETE /documents/{id}" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1090" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f4_del_route" value="routes/document.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="570" y="1150" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_de1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_del_start" target="f4_del_route" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f4_del_svc" value="services/document_service.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="570" y="1210" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_de2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_del_route" target="f4_del_svc" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f4_del_check1" value="Document&#xa;exists?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="558" y="1270" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_de3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_del_svc" target="f4_del_check1" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f4_del_err1" value="DOCUMENT_NOT_FOUND&#xa;HTTP 404" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="730" y="1278" width="130" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_de3b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_del_check1" target="f4_del_err1" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f4_lbl_no1" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="702" y="1282" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f4_chroma_del" value="client/chroma_client.py&#xa;delete(chroma_ids) batch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="568" y="1340" width="124" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_de4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_del_check1" target="f4_chroma_del" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f4_lbl_yes1" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="610" y="1322" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f4_del_check2" value="Chroma delete&#xa;fully OK?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="558" y="1400" width="144" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_de5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_chroma_del" target="f4_del_check2" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f4_del_err2" value="Mark DELETE_PENDING&#xa;log unconfirmed ids&#xa;VECTOR_STORE_UNAVAILABLE&#xa;HTTP 503" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="730" y="1398" width="140" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_de5b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_del_check2" target="f4_del_err2" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f4_lbl_no2" value="NO" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="702" y="1408" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f4_sql_del" value="repo/document_repo.py&#xa;repo/chunk_repo.py&#xa;delete Document + Chunks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="568" y="1470" width="124" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_de6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_del_check2" target="f4_sql_del" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f4_lbl_yes2" value="YES" style="text;html=1;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="610" y="1452" width="30" height="16" as="geometry" /></mxCell>
+
+        <mxCell id="f4_cache_inv" value="client/cache_client.py&#xa;invalidate documents:list" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="568" y="1540" width="124" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_de7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_sql_del" target="f4_cache_inv" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="f4_del_ok" value="DeleteResponse&#xa;(document_id) HTTP 200" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="558" y="1598" width="144" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f4_de8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="f4_cache_inv" target="f4_del_ok" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
